@@ -1,4 +1,13 @@
 import mongoose from "mongoose";
+import { createToken } from "../utils/jwt";
+import { hashPassword } from "../utils/passwords";
+
+export interface UserInput extends mongoose.Document {
+  name: string;
+  email: string;
+  password: string;
+  createJWT(): string;
+}
 
 const UserSchema = new mongoose.Schema({
   name: {
@@ -23,4 +32,17 @@ const UserSchema = new mongoose.Schema({
   },
 });
 
-export default mongoose.model("User", UserSchema);
+//pre middleware
+UserSchema.pre("save", async function () {
+  this.password = await hashPassword(this.password);
+  //   next(); not required since mongoose 5
+});
+
+//instance methods
+UserSchema.methods.createJWT = function (this: UserInput) {
+  return createToken({ userId: this._id, name: this.name }, "blabla", {
+    expiresIn: "30d",
+  });
+};
+
+export default mongoose.model<UserInput>("User", UserSchema);

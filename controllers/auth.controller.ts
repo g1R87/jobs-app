@@ -1,21 +1,21 @@
+import "dotenv/config";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import BadRequestError from "../errors/bad-request";
-import User from "../model/user.model";
-import { hashPassword } from "../utils/passwords";
+import User, { UserInput } from "../model/user.model";
+
+// interface User {
+//   name?: string;
+//   email?: string;
+//   password?: string;
+//   _id?: string;
+//   __v?: number;
+// }
 
 export const register = async (req: Request, res: Response) => {
-  const { name, email, password } = req.body;
+  const user = await User.create({ ...req.body });
+  const token = user.createJWT();
 
-  //   if (!name || !email || !password) {
-  //     throw new BadRequestError("wtf?");
-  //   }
-
-  const hashedPassword = await hashPassword(password);
-  const tempUser = { name, email, password: hashedPassword };
-
-  const user = await User.create({ ...tempUser });
-  res.status(StatusCodes.CREATED).send(user);
+  res.status(StatusCodes.CREATED).send({ user: { name: user.name }, token });
 };
 
 export const login = async (req: Request, res: Response) => {
