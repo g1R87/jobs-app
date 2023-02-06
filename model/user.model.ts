@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
 import { createToken } from "../utils/jwt";
-import { hashPassword } from "../utils/passwords";
+import { hashPassword, verifyPassword } from "../utils/passwords";
 
 export interface UserInput extends mongoose.Document {
   name: string;
   email: string;
   password: string;
   createJWT(): string;
+  checkPassword(password: string): boolean;
 }
 
 const UserSchema = new mongoose.Schema({
@@ -40,9 +41,19 @@ UserSchema.pre("save", async function () {
 
 //instance methods
 UserSchema.methods.createJWT = function (this: UserInput) {
-  return createToken({ userId: this._id, name: this.name }, "blabla", {
-    expiresIn: "30d",
-  });
+  return createToken(
+    { userId: this._id, name: this.name },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: process.env.JWT_LIFETIME,
+    }
+  );
+};
+
+UserSchema.methods.checkPassword = async function (
+  password: string
+): Promise<boolean> {
+  return await verifyPassword(password, this.password);
 };
 
 export default mongoose.model<UserInput>("User", UserSchema);
