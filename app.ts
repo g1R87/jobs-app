@@ -10,6 +10,11 @@ import errorHandlerMiddleware from "./middleware/error-handler";
 import notFound from "./middleware/not-found";
 import appRouter from "./routes/index";
 
+//swagger
+import swaggerUI from "swagger-ui-express";
+import YAML from "yamljs";
+const swaggerDocument = YAML.load("./swagger.yaml");
+
 const app = express();
 
 app.use(cors());
@@ -23,9 +28,17 @@ app.use(
 );
 app.use(express.json());
 
+//routes
+app.get("/", (req, res) => {
+  res.send('<h1>JOBS API</h1><a href="/api-docs">Documentation</a>');
+});
+
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
 app.use("/api/v1", appRouter);
 app.use(notFound);
 app.use(errorHandlerMiddleware);
+
 const port = config.port || 3000;
 
 const start = async () => {
