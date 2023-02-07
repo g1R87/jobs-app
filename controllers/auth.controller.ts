@@ -1,5 +1,6 @@
 import "dotenv/config";
 import { Request, Response } from "express";
+import createError from "http-errors";
 import { StatusCodes } from "http-status-codes";
 import BadRequestError from "../errors/bad-request";
 import UnauthenticatedError from "../errors/unauthenticated";
@@ -17,6 +18,7 @@ export const login = async (req: Request, res: Response) => {
 
   if (!email || !password) {
     throw new BadRequestError("Email/Password is required!");
+    // throw createError.BadRequest("Email/password is required!");
   }
 
   const user = await User.findOne({ email });
