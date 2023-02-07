@@ -1,5 +1,5 @@
+import jwt from "jsonwebtoken";
 import mongoose from "mongoose";
-import { createToken } from "../utils/jwt";
 import { hashPassword, verifyPassword } from "../utils/passwords";
 
 export interface UserInput extends mongoose.Document {
@@ -41,7 +41,7 @@ UserSchema.pre("save", async function () {
 
 //instance methods
 UserSchema.methods.createJWT = function (this: UserInput) {
-  return createToken(
+  return jwt.sign(
     { userId: this._id, name: this.name },
     process.env.JWT_SECRET as string,
     {

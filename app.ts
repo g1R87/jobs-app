@@ -1,7 +1,7 @@
-import "dotenv/config";
 import express from "express";
 import "express-async-errors";
 import mongoose from "mongoose";
+import { config } from "./config/default";
 import connectDB from "./db/connect";
 import errorHandlerMiddleware from "./middleware/error-handler";
 import notFound from "./middleware/not-found";
@@ -15,7 +15,7 @@ app.use("/api/v1", appRouter);
 app.use(notFound);
 app.use(errorHandlerMiddleware);
 
-const port = process.env.port || 3000;
+const port = config.port || 3000;
 
 const start = async () => {
   try {
